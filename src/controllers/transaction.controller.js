@@ -29,3 +29,43 @@ export async function getTransactions(req, res) {
         res.status(500).send(err.message)
     }
 }
+
+export async function deleteTransaction(req, res) {
+    const { id } = req.params
+    if (!id) return res.sendStatus(404)
+    
+    const { userId } = res.locals.session
+
+    try {
+        const result = await db
+            .collection("transactions")
+            .deleteOne({ _id: new ObjectId(id), userId })
+
+        if (result.deletedCount === 0) return res.sendStatus(404)
+        res.sendStatus(202)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+export async function editTransaction(req, res) {
+    const { id } = req.params
+    const { value, description } = req.body
+    if (!id) return res.sendStatus(404)
+    const { userId } = res.locals.session
+
+    try {
+        const result = await db
+            .collection("transactions")
+            .updateOne(
+                { _id: new ObjectId(id), userId },
+                { $set: { value: Number(value), description } }
+            )
+
+        if (result.matchedCount === 0) return res.sendStatus(404)
+        res.sendStatus(200)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+
+}
