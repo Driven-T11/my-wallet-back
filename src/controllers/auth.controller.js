@@ -41,6 +41,8 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
+    const token = res.locals.session.token
+
     try {
         await db.collection("sessions").deleteOne({ token })
         res.sendStatus(200)
